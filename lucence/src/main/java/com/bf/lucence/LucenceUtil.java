@@ -34,17 +34,16 @@ public class LucenceUtil {
 			try {
 				indexWriter = new IndexWriter(LucenceConfig.getDirectory(), LucenceConfig.getIndexWriterConfig());
 			} catch (IOException e) {
-				throw new RuntimeException(e);
-			} finally {
 				if (null != indexWriter) {
 					try {
 						indexWriter.close();
 						indexWriter = null;
-					} catch (IOException e) {
-						throw new RuntimeException(e);
+					} catch (IOException e1) {
+						throw new RuntimeException(e1);
 					}
 				}
-			}
+				throw new RuntimeException(e);
+			} 
 		}
 		return indexWriter;
 	}
@@ -57,17 +56,16 @@ public class LucenceUtil {
 			try {
 				indexReader = DirectoryReader.open(LucenceConfig.getDirectory());
 			} catch (IOException e) {
-				throw new RuntimeException(e);
-			} finally {
 				if (null != indexReader) {
 					try {
 						indexReader.close();
 						indexReader= null;
-					} catch (IOException e) {
-						throw new RuntimeException(e);
+					} catch (IOException e1) {
+						throw new RuntimeException(e1);
 					}
 				}
-			}
+				throw new RuntimeException(e);
+			} 
 		}
 		return indexReader;
 	}
@@ -112,6 +110,7 @@ public class LucenceUtil {
 			IndexWriter indexWriter = LucenceUtil.getIndexWriter();
 			indexWriter.addDocuments(Arrays.asList(docs));
 			LucenceUtil.indexChanged();
+			logger.debug("添加索引成功");
 		} catch (IOException e) {
 			logger.error("添加索引失败.....");
 			throw new RuntimeException(e);
@@ -126,19 +125,21 @@ public class LucenceUtil {
 			IndexWriter indexWriter = LucenceUtil.getIndexWriter();
 			indexWriter.deleteDocuments(terms);
 			LucenceUtil.indexChanged();
+			logger.debug("删除索引成功");
 		} catch (IOException e) {
 			logger.error("删除索引失败.....");
 			throw new RuntimeException(e);
 		}
 	}
 	/**
-	 * shan'c'shu
+	 * 删除所有索引
 	 */
 	public static void deleteAllIndex(){
 		try {
 			IndexWriter indexWriter = LucenceUtil.getIndexWriter();
 			indexWriter.deleteAll();
 			LucenceUtil.indexChanged();
+			logger.debug("删除所有索引成功");
 		} catch (IOException e) {
 			logger.error("删除所有索引失败.....");
 			throw new RuntimeException(e);
@@ -154,6 +155,7 @@ public class LucenceUtil {
 			IndexWriter indexWriter = LucenceUtil.getIndexWriter();
 			indexWriter.updateDocument(term, newDoc);
 			LucenceUtil.indexChanged();
+			logger.debug("更新索引成功");
 		} catch (IOException e) {
 			logger.error("更新索引失败.....");
 			throw new RuntimeException(e);

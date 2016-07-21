@@ -29,7 +29,7 @@ public class LucenceSearch {
 	 * @param convert
 	 * @return
 	 */
-	public <T> LucencePage<T> findPage(LucencePage<T> page , Query query,LucenceConvert<T> convert){
+	public static <T> LucencePage<T> findPage(LucencePage<T> page , Query query,LucenceConvert<T> convert){
 		IndexSearcher indexSearcher = LucenceUtil.getIndexSearcher();
 		int n = page.getFirstResult() + page.getPageSize();//查询前n条
 		try {
@@ -39,7 +39,7 @@ public class LucenceSearch {
 			//会延迟加载
 			ScoreDoc[] scoreDocs = topDocs.scoreDocs;//指定前n条 实际得到的数量
 			//分页
-			int endIndex = Math.max(n, scoreDocs.length);
+			int endIndex = Math.min(n, scoreDocs.length);
 			List<T> list = new ArrayList<T>();
 			for (int i = page.getFirstResult() ; i < endIndex ;i ++) {
 				Document doc = indexSearcher.doc(scoreDocs[i].doc);
@@ -47,6 +47,7 @@ public class LucenceSearch {
 				list.add(t);
 			}
 			page.setList(list);
+			logger.debug("一共匹配到：{},实际取：{}",total,scoreDocs.length);
 		} catch (IOException e) {
 			logger.error("索引匹配失败");
 			throw new RuntimeException(e);
@@ -59,8 +60,8 @@ public class LucenceSearch {
 	 * @param convert
 	 * @return
 	 */
-	public <T> List<T> findAll(Query query,LucenceConvert<T> convert){
+	public static <T> List<T> findAll(Query query,LucenceConvert<T> convert){
 		LucencePage<T> page = new LucencePage<T>(1, Integer.MAX_VALUE);
-		return this.findPage(page, query, convert).getList();
+		return findPage(page, query, convert).getList();
 	}
 }
